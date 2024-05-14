@@ -1,33 +1,33 @@
-from multiprocessing import Pool
+from concurrent.futures import ThreadPoolExecutor
 
 def multiply(a, b, block_size):
     size = len(a)
     c = [[0] * size for _ in range(size)]
 
-    def calculate_partial_result(ib):
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        executor.map(lambda _: compute_partial_result(a, b, c, size, block_size), [None])
+
+    return c
+
+def compute_partial_result(a, b, c, size, block_size):
+    for ib in range(0, size, block_size):
         for jb in range(0, size, block_size):
             for kb in range(0, size, block_size):
                 for i in range(ib, min(ib + block_size, size)):
                     for j in range(jb, min(jb + block_size, size)):
                         for k in range(kb, min(kb + block_size, size)):
-                            c[i][j] += a[i][k] * b[k][j]
+                            c[i][k] += a[i][j] * b[j][k]
 
-    with Pool(processes=2) as pool:
-        pool.map(calculate_partial_result, range(0, size, block_size))
-
-    return c
 
 def imprimir_matriz(matriz):
-    imprimir = ""
     for fila in matriz:
-        for elemento in fila:
-            imprimir += " " + str(elemento)
-        imprimir += "\n"
-    print(imprimir)
+        print(" ".join(str(elemento) for elemento in fila))
 
 if __name__ == "__main__":
-    m1 = [[6, 3], [1, 3]]
-    m2 = [[6, 8], [5, 7]]
+    m1 = [[12, 44], [19, 23]]
+    m2 = [[66, 80], [75, 78]]
+
 
     resultado = multiply(m1, m2, int(len(m1) ** 0.5))
     imprimir_matriz(resultado)
+

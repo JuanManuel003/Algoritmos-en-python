@@ -28,8 +28,8 @@ def imprimir_matriz(matriz):
     print(imprimir)
 
 if __name__ == "__main__":
-    m1 = [[2, 4, 9], [1, 3, 9], [5, 6, 7]]
-    m2 = [[6, 8, 9], [5, 7, 9], [5, 6, 7]]
+    m1 = [[12, 44], [19, 23]]
+    m2 = [[66, 80], [75, 78]]
     m1l = len(m1)
     p = len(m2[0])
     m3 = [[0] * p for _ in range(m1l)]

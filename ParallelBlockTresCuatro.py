@@ -1,33 +1,32 @@
-from multiprocessing import Pool
+from concurrent.futures import ThreadPoolExecutor
 
-def multiply(a, b, blockSize):
+def multiply(a, b, block_size):
     size = len(a)
-    c = [[0.0] * size for _ in range(size)]
+    c = [[0] * size for _ in range(size)]
 
-    def process_block(ib):
-        for jb in range(0, size, blockSize):
-            for kb in range(0, size, blockSize):
-                for i in range(ib, min(ib + blockSize, size)):
-                    for j in range(jb, min(jb + blockSize, size)):
-                        for k in range(kb, min(kb + blockSize, size)):
-                            c[i][j] += a[i][k] * b[k][j]
-
-    with Pool(1) as pool:
-        pool.map(process_block, [ib for ib in range(0, size, blockSize)])
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        executor.map(lambda _: compute_partial_result(a, b, c, size, block_size), [None])
 
     return c
 
-def imprimirMatriz(matriz):
-    imprimir = ""
-    for i in range(len(matriz)):
-        for j in range(len(matriz[0])):
-            imprimir += " " + str(matriz[i][j])
-        imprimir += "\n"
-    print(imprimir)
+def compute_partial_result(a, b, c, size, block_size):
+    for ib in range(0, size, block_size):
+        for jb in range(0, size, block_size):
+            for kb in range(0, size, block_size):
+                for i in range(ib, min(ib + block_size, size)):
+                    for j in range(jb, min(jb + block_size, size)):
+                        for k in range(kb, min(kb + block_size, size)):
+                            c[i][j] += a[i][k] * b[k][j]
+
+def imprimir_matriz(matriz):
+    for fila in matriz:
+        print(" ".join(str(elemento) for elemento in fila))
 
 if __name__ == "__main__":
-    m1 = [[6, 3], [1, 3]]
-    m2 = [[6, 8], [5, 7]]
+    m1 = [[12, 44], [19, 23]]
+    m2 = [[66, 80], [75, 78]]
+
 
     resultado = multiply(m1, m2, int(len(m1) ** 0.5))
-    imprimirMatriz(resultado)
+    imprimir_matriz(resultado)
+
